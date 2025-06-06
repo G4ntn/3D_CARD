@@ -13,7 +13,7 @@ import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
 extend({ MeshLineGeometry, MeshLineMaterial });
 
 
-const GLTF_PATH = '/assets/gencard.gltf';
+const GLTF_PATH = '/assets/gencard.glb';
 const TEXTURE_PATH = '/assets/bandd.png';
 
 useGLTF.preload(GLTF_PATH);
