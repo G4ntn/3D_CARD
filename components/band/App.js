@@ -1,20 +1,13 @@
 'use client';
 import './index.css';
 import * as THREE from 'three';
-import { useEffect, useRef, useState } from 'react';
-import { Canvas, extend, useThree, useFrame } from '@react-three/fiber';
-import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
-// Physics imports commented out temporarily to disable physics
-// import { Physics, RigidBody, useRopeJoint, useSphericalJoint, BallCollider, CuboidCollider } from '@react-three/rapier'; 
-import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
-
-extend({ MeshLineGeometry, MeshLineMaterial });
+import { useEffect, useRef } from 'react';
+import { Canvas, useThree } from '@react-three/fiber';
+import { useGLTF, Environment, Lightformer } from '@react-three/drei';
 
 const GLTF_PATH = '/assets/gencard.glb';
-const TEXTURE_PATH = '/assets/bandd.png';
 
 useGLTF.preload(GLTF_PATH);
-useTexture.preload(TEXTURE_PATH);
 
 export default function App() {
   return (
@@ -22,10 +15,7 @@ export default function App() {
       <Canvas camera={{ position: [0, 0, 15], fov: 25 }}>
         <ambientLight intensity={Math.PI} />
         <directionalLight position={[5, 5, 5]} intensity={1} />
-        {/* Physics temporarily disabled */}
-        {/* <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}> */}
-          <Band />
-        {/* </Physics> */}
+        <Band />
         <Environment background blur={0.75}>
           <color attach="background" args={['black']} />
           <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
@@ -39,11 +29,19 @@ export default function App() {
 }
 
 function Band() {
-  // refs removed for physics joints since physics is disabled now
   const { nodes } = useGLTF(GLTF_PATH);
+  const { width, height } = useThree((state) => state.size);
+  
+  useEffect(() => {
+    console.log('GLTF nodes:', nodes);
+    if (nodes.card && nodes.card.geometry) {
+      nodes.card.geometry.computeBoundingBox();
+      console.log('Card bounding box:', nodes.card.geometry.boundingBox);
+    } else {
+      console.warn('Card node or geometry not found!');
+    }
+  }, [nodes]);
 
-  // Debug mesh to confirm camera view
-  // Also place the card at origin, scale 1
   return (
     <>
       {/* Debug red cube at origin */}
@@ -52,12 +50,26 @@ function Band() {
         <meshStandardMaterial color="red" />
       </mesh>
 
-      {/* The card mesh inside a simple group and mesh */}
-      <group scale={1} position={[0, 0, 0]}>
-        <mesh geometry={nodes.card.geometry}>
+      {/* Try rendering card geometry */}
+      {nodes.card && nodes.card.geometry ? (
+        <mesh geometry={nodes.card.geometry} position={[0, 0, 0]} scale={1}>
           <meshStandardMaterial color="orange" />
         </mesh>
-      </group>
+      ) : (
+        <></>
+      )}
+
+      {/* Also try rendering other nodes to test */}
+      {nodes.clip && nodes.clip.geometry && (
+        <mesh geometry={nodes.clip.geometry} position={[3, 0, 0]} scale={1}>
+          <meshStandardMaterial color="blue" />
+        </mesh>
+      )}
+      {nodes.clamp && nodes.clamp.geometry && (
+        <mesh geometry={nodes.clamp.geometry} position={[-3, 0, 0]} scale={1}>
+          <meshStandardMaterial color="green" />
+        </mesh>
+      )}
     </>
   );
 }
