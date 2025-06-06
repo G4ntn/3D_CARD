@@ -55,6 +55,15 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
 
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
   const { nodes, materials } = useGLTF(GLTF_PATH);
+  useEffect(() => {
+  console.log('GLTF nodes:', Object.keys(nodes));
+  Object.entries(nodes).forEach(([name, node]) => {
+    if (node.geometry) {
+      console.log(`Node ${name} has geometry with ${node.geometry.attributes.position.count} vertices`);
+    }
+  });
+}, [nodes]);
+
   const texture = useTexture(TEXTURE_PATH);
   const { width, height } = useThree((state) => state.size);
   const [curve] = useState(() => new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]));
