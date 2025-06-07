@@ -18,13 +18,16 @@ useTexture.preload(TEXTURE_PATH);
 export default function App() {
   return (
     <div className="responsive-wrapper">
-      <Canvas camera={{ position: [0, 0, 13], fov: 25 }} gl={{ alpha: true }}>
+      <Canvas
+        camera={{ position: [0, 0, 13], fov: 25 }}
+        gl={{ alpha: true }}
+      >
         <ambientLight intensity={Math.PI} />
+        <directionalLight position={[5, 5, 5]} intensity={2} />
         <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
           <Band />
         </Physics>
         <Environment blur={0.75}>
-          {/* Removed background color for transparency */}
           <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
           <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
           <Lightformer intensity={3} color="white" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
