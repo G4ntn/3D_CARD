@@ -1,13 +1,11 @@
+// App.js
 'use client';
 import './index.css';
 import * as THREE from 'three';
-import { useEffect, useRef, useState } from 'react';
-import { Canvas, extend, useThree, useFrame } from '@react-three/fiber';
+import { useRef, useState, useEffect } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
-import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
-import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
-
-extend({ MeshLineGeometry, MeshLineMaterial });
+import { Physics, RigidBody, BallCollider, CuboidCollider, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
 
 const GLTF_PATH = '/assets/gencard.glb';
 const TEXTURE_PATH = '/assets/bandd.png';
@@ -18,12 +16,16 @@ useTexture.preload(TEXTURE_PATH);
 export default function App() {
   return (
     <div className="responsive-wrapper">
-      <Canvas camera={{ position: [0, 0, 13], fov: 25 }}>
+      <Canvas
+        camera={{ position: [0, 0, 13], fov: 25 }}
+        gl={{ alpha: true }}
+        style={{ background: 'transparent' }}
+      >
         <ambientLight intensity={Math.PI} />
         <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
           <Band />
         </Physics>
-        <Environment background blur={0.75}>
+        <Environment background={false} blur={0.75}>
           <color attach="background" args={['black']} />
           <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
           <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
@@ -36,15 +38,24 @@ export default function App() {
 }
 
 function Band({ maxSpeed = 50, minSpeed = 10 }) {
-  const band = useRef(), fixed = useRef(), j1 = useRef(), j2 = useRef(), j3 = useRef(), card = useRef();
-  const vec = new THREE.Vector3(), ang = new THREE.Vector3(), rot = new THREE.Vector3(), dir = new THREE.Vector3();
+  const band = useRef(),
+    fixed = useRef(),
+    j1 = useRef(),
+    j2 = useRef(),
+    j3 = useRef(),
+    card = useRef();
+  const vec = new THREE.Vector3(),
+    dir = new THREE.Vector3(),
+    ang = new THREE.Vector3(),
+    rot = new THREE.Vector3();
+
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
   const { nodes, materials } = useGLTF(GLTF_PATH);
   const texture = useTexture(TEXTURE_PATH);
   const { width, height } = useThree((state) => state.size);
+
   const [curve] = useState(() => new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]));
   const [dragged, drag] = useState(false);
-  const [hovered, hover] = useState(false);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
   useRopeJoint(j1, j2, [[0, 0, 0], [0, 0, 0], 1]);
@@ -52,11 +63,11 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
   useSphericalJoint(j3, card, [[0, 0, 0], [0, 1.45, 0]]);
 
   useEffect(() => {
-    if (hovered) {
-      document.body.style.cursor = dragged ? 'grabbing' : 'grab';
+    if (dragged) {
+      document.body.style.cursor = 'grabbing';
       return () => void (document.body.style.cursor = 'auto');
     }
-  }, [hovered, dragged]);
+  }, [dragged]);
 
   useFrame((state, delta) => {
     if (dragged) {
@@ -104,15 +115,12 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
           <group
             scale={2.25}
             position={[0, -1.2, -0.05]}
-            onPointerOver={() => hover(true)}
-            onPointerOut={() => hover(false)}
             onPointerUp={(e) => (e.target.releasePointerCapture(e.pointerId), drag(false))}
             onPointerDown={(e) => (e.target.setPointerCapture(e.pointerId), drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation()))))}
           >
-            {/* Use the _1 suffixed nodes here */}
             <mesh geometry={nodes.card_1.geometry}>
               <meshPhysicalMaterial
-                map={materials.base?.map}
+                map={materials.base.map}
                 map-anisotropy={16}
                 clearcoat={1}
                 clearcoatRoughness={0.15}
@@ -127,15 +135,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
       </group>
       <mesh ref={band}>
         <meshLineGeometry />
-        <meshLineMaterial
-          color="white"
-          depthTest={false}
-          resolution={[width, height]}
-          useMap
-          map={texture}
-          repeat={[-4, 1]}
-          lineWidth={1}
-        />
+        <meshLineMaterial color="white" depthTest={false} resolution={[width, height]} useMap map={texture} repeat={[-4, 1]} lineWidth={1} />
       </mesh>
     </>
   );
