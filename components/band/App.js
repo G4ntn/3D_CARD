@@ -18,13 +18,13 @@ useTexture.preload(TEXTURE_PATH);
 export default function App() {
   return (
     <div className="responsive-wrapper">
-      <Canvas camera={{ position: [0, 0, 13], fov: 25 }}>
+      <Canvas camera={{ position: [0, 0, 13], fov: 25 }} gl={{ alpha: true }}>
         <ambientLight intensity={Math.PI} />
         <Physics interpolate gravity={[0, -40, 0]} timeStep={1 / 60}>
           <Band />
         </Physics>
-        <Environment background blur={0.75}>
-          <color attach="background" args={['black']} />
+        <Environment blur={0.75}>
+          {/* Removed background color for transparency */}
           <Lightformer intensity={2} color="white" position={[0, -1, 5]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
           <Lightformer intensity={3} color="white" position={[-1, -1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
           <Lightformer intensity={3} color="white" position={[1, 1, 1]} rotation={[0, 0, Math.PI / 3]} scale={[100, 0.1, 1]} />
@@ -39,6 +39,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
   const band = useRef(), fixed = useRef(), j1 = useRef(), j2 = useRef(), j3 = useRef(), card = useRef();
   const vec = new THREE.Vector3(), ang = new THREE.Vector3(), rot = new THREE.Vector3(), dir = new THREE.Vector3();
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
+
   const { nodes, materials } = useGLTF(GLTF_PATH);
   const texture = useTexture(TEXTURE_PATH);
   const { width, height } = useThree((state) => state.size);
@@ -109,10 +110,9 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
             onPointerUp={(e) => (e.target.releasePointerCapture(e.pointerId), drag(false))}
             onPointerDown={(e) => (e.target.setPointerCapture(e.pointerId), drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation()))))}
           >
-            {/* Use the _1 suffixed nodes here */}
-            <mesh geometry={nodes.card_1.geometry}>
+            <mesh geometry={nodes.card.geometry}>
               <meshPhysicalMaterial
-                map={materials.base?.map}
+                map={materials.base.map}
                 map-anisotropy={16}
                 clearcoat={1}
                 clearcoatRoughness={0.15}
@@ -120,22 +120,14 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
                 metalness={0.5}
               />
             </mesh>
-            <mesh geometry={nodes.clip_1.geometry} material={materials.metal} material-roughness={0.3} />
-            <mesh geometry={nodes.clamp_1.geometry} material={materials.metal} />
+            <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
+            <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
           </group>
         </RigidBody>
       </group>
       <mesh ref={band}>
         <meshLineGeometry />
-        <meshLineMaterial
-          color="white"
-          depthTest={false}
-          resolution={[width, height]}
-          useMap
-          map={texture}
-          repeat={[-4, 1]}
-          lineWidth={1}
-        />
+        <meshLineMaterial color="white" depthTest={false} resolution={[width, height]} useMap map={texture} repeat={[-4, 1]} lineWidth={1} />
       </mesh>
     </>
   );
