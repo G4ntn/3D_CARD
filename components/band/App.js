@@ -37,6 +37,7 @@ export default function App() {
 
 function Band({ maxSpeed = 50, minSpeed = 10 }) {
   const { nodes, materials } = useGLTF(GLTF_PATH);
+  console.log('GLTF Nodes:', nodes);
   const texture = useTexture(TEXTURE_PATH);
   const band = useRef(), fixed = useRef(), j1 = useRef(), j2 = useRef(), j3 = useRef(), card = useRef();
   const { width, height } = useThree((state) => state.size);
