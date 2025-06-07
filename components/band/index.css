@@ -3,7 +3,7 @@
 body {
   margin: 0;
   overflow: hidden;
-  background: transparent; /* Ensure full-page transparency */
+  background: transparent;
 }
 
 .responsive-wrapper {
@@ -14,5 +14,5 @@ body {
   align-items: center;
   transform: scale(1);
   transform-origin: center;
-  background: transparent; /* Ensure container background is also transparent */
+  background: transparent;
 }
