@@ -1,5 +1,5 @@
-// App.js
 'use client';
+
 import './index.css';
 import * as THREE from 'three';
 import { useRef, useState, useEffect } from 'react';
@@ -44,6 +44,7 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
     j2 = useRef(),
     j3 = useRef(),
     card = useRef();
+
   const vec = new THREE.Vector3(),
     dir = new THREE.Vector3(),
     ang = new THREE.Vector3(),
@@ -54,7 +55,12 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
   const texture = useTexture(TEXTURE_PATH);
   const { width, height } = useThree((state) => state.size);
 
-  const [curve] = useState(() => new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]));
+  const [curve] = useState(() => new THREE.CatmullRomCurve3([
+    new THREE.Vector3(),
+    new THREE.Vector3(),
+    new THREE.Vector3(),
+    new THREE.Vector3()
+  ]));
   const [dragged, drag] = useState(false);
 
   useRopeJoint(fixed, j1, [[0, 0, 0], [0, 0, 0], 1]);
@@ -116,7 +122,10 @@ function Band({ maxSpeed = 50, minSpeed = 10 }) {
             scale={2.25}
             position={[0, -1.2, -0.05]}
             onPointerUp={(e) => (e.target.releasePointerCapture(e.pointerId), drag(false))}
-            onPointerDown={(e) => (e.target.setPointerCapture(e.pointerId), drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation()))))}
+            onPointerDown={(e) =>
+              (e.target.setPointerCapture(e.pointerId),
+              drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation()))))
+            }
           >
             <mesh geometry={nodes.card_1.geometry}>
               <meshPhysicalMaterial
